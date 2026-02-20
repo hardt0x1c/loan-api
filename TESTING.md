@@ -3,13 +3,11 @@
 ## Current Status In This Environment
 
 - [x] `docker compose up -d --build` starts containers without manual actions.
-- [ ] `localhost:80` responds correctly (currently `500` due to PHP version mismatch).
-- [ ] `POST /requests` returns `201` and `id` (blocked by the same PHP issue).
-- [ ] `POST /requests` returns `400` when `user_id` already has an `approved` request (blocked by the same PHP issue).
-- [ ] `GET /processor` processes `pending` and sets `approved/declined` (blocked by the same PHP issue).
-- [ ] Parallel `/processor` calls do not produce double `approved` for the same `user_id` (blocked by the same PHP issue).
-
-Blocker reason: `composer.lock` requires `PHP >= 8.4`, while `docker/Dockerfile` currently uses `php:8.3-fpm`.
+- [x] `localhost:80` responds correctly (`GET /health` -> `200`).
+- [x] `POST /requests` returns `201` and `id`.
+- [x] `POST /requests` returns `400` when `user_id` already has an `approved` request.
+- [x] `GET /processor` processes `pending` and sets `approved/declined`.
+- [x] Parallel `/processor` calls do not produce double `approved` for the same `user_id`.
 
 ## Quick Self-test (After Aligning PHP Version)
 

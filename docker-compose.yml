@@ -5,6 +5,12 @@ services:
       dockerfile: docker/Dockerfile
     container_name: loan-api-php
     working_dir: /var/www/html
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: loans
+      DB_USER: user
+      DB_PASSWORD: password
     volumes:
       - ./src:/var/www/html
     networks:

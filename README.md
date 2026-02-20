@@ -3,7 +3,13 @@
 ## Run project
 
 ```bash
-docker compose up -d
+docker compose up -d --build
+```
+
+Install PHP dependencies:
+
+```bash
+docker compose exec php composer install --no-interaction --prefer-dist
 ```
 
 Run migrations:
@@ -65,3 +71,7 @@ Expected response:
 ```json
 {"result":true}
 ```
+
+## Time spent
+
+Approximately `6 hours`.

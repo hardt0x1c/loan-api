@@ -51,6 +51,7 @@ $config = [
             'rules' => [
                 'GET health' => 'health/index',
                 'POST requests' => 'requests/create',
+                'GET processor' => 'processor/index',
             ],
         ],
     ],

@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# macOS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Yii2 app artifacts
+src/vendor/
+src/runtime/*
+!src/runtime/.gitignore
+src/web/assets/*
+!src/web/assets/.gitignore
+src/tests/_output/
+
+# PHPUnit / Codeception
+src/.phpunit.result.cache
+src/tests/_data/*.sqlite

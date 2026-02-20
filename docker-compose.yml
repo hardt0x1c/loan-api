@@ -1,0 +1,49 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: loan-api-php
+    working_dir: /app
+    volumes:
+      - ./src:/app
+    env_file:
+      - .env
+    networks:
+      - loan-api
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: loan-api-nginx
+    depends_on:
+      - php
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/app
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - loan-api
+
+  db:
+    image: mysql:8.4
+    container_name: loan-api-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-loan_api}
+      MYSQL_USER: ${DB_USER:-loan_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-loan_pass}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - loan-api
+
+volumes:
+  db_data:
+
+networks:
+  loan-api:
+    driver: bridge

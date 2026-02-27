@@ -9,6 +9,9 @@ use yii\web\Response;
 
 class HealthController extends Controller
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function behaviors(): array
     {
         return [
@@ -21,6 +24,9 @@ class HealthController extends Controller
         ];
     }
 
+    /**
+     * @return array<string, bool>
+     */
     public function actionIndex(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;

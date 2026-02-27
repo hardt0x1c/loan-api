@@ -2,17 +2,24 @@
 
 namespace app\controllers;
 
-use app\models\LoanRequest;
+use app\services\LoanRequestService;
 use Yii;
-use yii\db\IntegrityException;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
 
 class RequestsController extends Controller
 {
+    /**
+     * API-only controller: CSRF is disabled for JSON requests.
+     *
+     * @var bool
+     */
     public $enableCsrfValidation = false;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function behaviors(): array
     {
         return [
@@ -25,6 +32,11 @@ class RequestsController extends Controller
         ];
     }
 
+    /**
+     * Creates a new loan request.
+     *
+     * @return array<string, mixed>
+     */
     public function actionCreate(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -40,44 +52,15 @@ class RequestsController extends Controller
             return ['result' => false];
         }
 
-        $loanRequest = new LoanRequest();
-        $loanRequest->user_id = $data['user_id'] ?? null;
-        $loanRequest->amount = $data['amount'] ?? null;
-        $loanRequest->term = $data['term'] ?? null;
-        $loanRequest->status = LoanRequest::STATUS_PENDING;
+        $service = new LoanRequestService();
+        $result = $service->create($data);
 
-        if (!$loanRequest->validate(['user_id', 'amount', 'term'])) {
+        if (($result['result'] ?? false) !== true) {
             Yii::$app->response->statusCode = 400;
-            return ['result' => false];
-        }
-
-        $hasApproved = LoanRequest::find()
-            ->where([
-                'user_id' => $loanRequest->user_id,
-                'status' => LoanRequest::STATUS_APPROVED,
-            ])
-            ->exists();
-
-        if ($hasApproved) {
-            Yii::$app->response->statusCode = 400;
-            return ['result' => false];
-        }
-
-        try {
-            if (!$loanRequest->save(false)) {
-                Yii::$app->response->statusCode = 400;
-                return ['result' => false];
-            }
-        } catch (IntegrityException $e) {
-            Yii::$app->response->statusCode = 400;
-            return ['result' => false];
+            return $result;
         }
 
         Yii::$app->response->statusCode = 201;
-
-        return [
-            'result' => true,
-            'id' => (int) $loanRequest->id,
-        ];
+        return $result;
     }
 }

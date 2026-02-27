@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ProcessRequestsForm;
 use app\services\LoanProcessorService;
 use Yii;
 use yii\filters\VerbFilter;
@@ -10,6 +11,9 @@ use yii\web\Response;
 
 class ProcessorController extends Controller
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function behaviors(): array
     {
         return [
@@ -22,15 +26,30 @@ class ProcessorController extends Controller
         ];
     }
 
+    /**
+     * Processes pending loan requests with optional artificial delay.
+     *
+     * @return array<string, mixed>
+     */
     public function actionIndex(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        Yii::$app->response->statusCode = 200;
 
-        $delay = (int) Yii::$app->request->get('delay', 0);
+        $form = new ProcessRequestsForm();
+        $form->load(Yii::$app->request->queryParams, '');
+        if (!$form->validate()) {
+            Yii::$app->response->statusCode = 400;
+            return [
+                'result' => false,
+                'error' => 'invalid_delay',
+                'details' => $form->getErrors(),
+            ];
+        }
+
         $service = new LoanProcessorService();
-        $service->processPending($delay);
+        $service->processPending($form->delay);
 
+        Yii::$app->response->statusCode = 200;
         return ['result' => true];
     }
 }

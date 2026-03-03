@@ -4,7 +4,6 @@ namespace app\services;
 
 use app\models\CreateLoanRequestForm;
 use app\models\LoanRequest;
-use yii\db\IntegrityException;
 
 /**
  * Business operations for loan request creation.
@@ -47,17 +46,10 @@ class LoanRequestService
             'status' => LoanRequest::STATUS_PENDING,
         ]);
 
-        try {
-            if (!$loanRequest->save(false)) {
-                return [
-                    'result' => false,
-                    'error' => 'create_failed',
-                ];
-            }
-        } catch (IntegrityException $e) {
+        if (!$loanRequest->save(false)) {
             return [
                 'result' => false,
-                'error' => 'approved_request_already_exists',
+                'error' => 'create_failed',
             ];
         }
 

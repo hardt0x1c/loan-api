@@ -13,12 +13,20 @@ class LoanProcessorService
 {
     /**
      * @param int $delaySeconds Artificial delay before decision making.
+     * @param int $timeLimit Execution time limit in seconds (0 = unlimited).
      */
-    public function processPending(int $delaySeconds = 0): void
+    public function processPending(int $delaySeconds = 0, int $timeLimit = 30): void
     {
         $delaySeconds = max(0, $delaySeconds);
+        $startTime = time();
+
+        $this->resetStaleRequests();
 
         while (true) {
+            if ($timeLimit > 0 && (time() - $startTime) >= $timeLimit) {
+                break;
+            }
+
             $requestId = $this->acquirePendingRequestId();
             if ($requestId === null) {
                 break;
@@ -30,6 +38,25 @@ class LoanProcessorService
 
             $this->finalizeRequest($requestId);
         }
+    }
+
+    /**
+     * Resets stuck 'processing' requests back to 'pending'.
+     *
+     * @param int $timeoutSeconds Requests processing longer than this are considered stuck.
+     * @return int Number of reset requests.
+     */
+    public function resetStaleRequests(int $timeoutSeconds = 300): int
+    {
+        $db = Yii::$app->db;
+        return $db->createCommand(
+            'UPDATE {{%loan_requests}} SET status = :pending '
+            . 'WHERE status = :processing AND updated_at < NOW() - INTERVAL \'' . $timeoutSeconds . ' seconds\'',
+            [
+                ':pending' => LoanRequest::STATUS_PENDING,
+                ':processing' => LoanRequest::STATUS_PROCESSING,
+            ]
+        )->execute();
     }
 
     /**
@@ -100,7 +127,7 @@ class LoanProcessorService
                 return;
             }
 
-            if ($this->shouldApprove()) {
+            if ((new LoanDecisionEngine())->shouldApprove()) {
                 $this->tryApproveOrDecline($loanRequest);
             } else {
                 $this->setDeclined($loanRequest);
@@ -114,14 +141,6 @@ class LoanProcessorService
 
             Yii::error($e->getMessage(), __METHOD__);
         }
-    }
-
-    /**
-     * @return bool
-     */
-    private function shouldApprove(): bool
-    {
-        return random_int(1, 10) === 1;
     }
 
     private function tryApproveOrDecline(LoanRequest $loanRequest): void

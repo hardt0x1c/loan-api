@@ -57,7 +57,7 @@ class RequestsController extends Controller
 
         if (($result['result'] ?? false) !== true) {
             Yii::$app->response->statusCode = 400;
-            return $result;
+            return ['result' => false];
         }
 
         Yii::$app->response->statusCode = 201;

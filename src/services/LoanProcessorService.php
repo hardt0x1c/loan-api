@@ -15,7 +15,7 @@ class LoanProcessorService
      * @param int $delaySeconds Artificial delay before decision making.
      * @param int $timeLimit Execution time limit in seconds (0 = unlimited).
      */
-    public function processPending(int $delaySeconds = 0, int $timeLimit = 30): void
+    public function processPending(int $delaySeconds = 0, int $timeLimit = 0): void
     {
         $delaySeconds = max(0, $delaySeconds);
         $startTime = time();

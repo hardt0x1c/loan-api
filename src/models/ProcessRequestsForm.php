@@ -9,9 +9,7 @@ use yii\base\Model;
  */
 class ProcessRequestsForm extends Model
 {
-    public const MAX_DELAY_SECONDS = 300;
-
-    public int $delay = 0;
+    public ?int $delay = null;
 
     /**
      * @return array<int, array<int|string, mixed>>
@@ -19,8 +17,8 @@ class ProcessRequestsForm extends Model
     public function rules(): array
     {
         return [
-            ['delay', 'default', 'value' => 0],
-            ['delay', 'integer', 'min' => 0, 'max' => self::MAX_DELAY_SECONDS],
+            ['delay', 'required'],
+            ['delay', 'integer', 'min' => 0],
         ];
     }
 }

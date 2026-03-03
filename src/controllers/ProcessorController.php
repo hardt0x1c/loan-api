@@ -39,15 +39,11 @@ class ProcessorController extends Controller
         $form->load(Yii::$app->request->queryParams, '');
         if (!$form->validate()) {
             Yii::$app->response->statusCode = 400;
-            return [
-                'result' => false,
-                'error' => 'invalid_delay',
-                'details' => $form->getErrors(),
-            ];
+            return ['result' => false];
         }
 
         $service = new LoanProcessorService();
-        $service->processPending($form->delay);
+        $service->processPending((int) $form->delay, 0);
 
         Yii::$app->response->statusCode = 200;
         return ['result' => true];

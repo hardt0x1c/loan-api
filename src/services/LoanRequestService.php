@@ -4,6 +4,7 @@ namespace app\services;
 
 use app\models\CreateLoanRequestForm;
 use app\models\LoanRequest;
+use yii\web\Request;
 
 /**
  * Business operations for loan request creation.
@@ -11,20 +12,37 @@ use app\models\LoanRequest;
 class LoanRequestService
 {
     /**
-     * @param array<string, mixed> $payload
-     * @return array<string, mixed>
+     * Creates a new loan request from HTTP request data.
+     *
+     * @param Request $request
+     * @return int|null Created loan request ID or null on validation/business failure.
      */
-    public function create(array $payload): array
+    public function createFromRequest(Request $request): ?int
     {
+        if (!$this->isJsonRequest($request)) {
+            return null;
+        }
+
+        return $this->createFromPayload($request->getBodyParams());
+    }
+
+    /**
+     * Creates a new loan request from payload data.
+     *
+     * @param mixed $payload
+     * @return int|null Created loan request ID or null on validation/business failure.
+     */
+    public function createFromPayload($payload): ?int
+    {
+        if (!is_array($payload)) {
+            return null;
+        }
+
         $form = new CreateLoanRequestForm();
         $form->load($payload, '');
 
         if (!$form->validate()) {
-            return [
-                'result' => false,
-                'error' => 'invalid_payload',
-                'details' => $form->getErrors(),
-            ];
+            return null;
         }
 
         $hasApproved = LoanRequest::find()->where([
@@ -33,10 +51,7 @@ class LoanRequestService
         ])->exists();
 
         if ($hasApproved) {
-            return [
-                'result' => false,
-                'error' => 'approved_request_already_exists',
-            ];
+            return null;
         }
 
         $loanRequest = new LoanRequest([
@@ -47,15 +62,18 @@ class LoanRequestService
         ]);
 
         if (!$loanRequest->save(false)) {
-            return [
-                'result' => false,
-                'error' => 'create_failed',
-            ];
+            return null;
         }
 
-        return [
-            'result' => true,
-            'id' => (int) $loanRequest->id,
-        ];
+        return (int) $loanRequest->id;
+    }
+
+    /**
+     * @param Request $request
+     * @return bool
+     */
+    private function isJsonRequest(Request $request): bool
+    {
+        return stripos((string) $request->headers->get('Content-Type', ''), 'application/json') === 0;
     }
 }

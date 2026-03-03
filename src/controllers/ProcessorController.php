@@ -9,6 +9,9 @@ use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
 
+/**
+ * Handles the API endpoint for bulk loan request processing.
+ */
 class ProcessorController extends Controller
 {
     /**

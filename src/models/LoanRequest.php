@@ -4,6 +4,18 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 
+/**
+ * ActiveRecord model for loan requests.
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int $amount
+ * @property int $term
+ * @property string $status
+ * @property string $created_at
+ * @property string|null $processed_at
+ * @property string $updated_at
+ */
 class LoanRequest extends ActiveRecord
 {
     public const STATUS_PENDING = 'pending';

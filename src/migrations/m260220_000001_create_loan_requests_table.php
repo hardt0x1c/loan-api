@@ -2,8 +2,14 @@
 
 use yii\db\Migration;
 
+/**
+ * Creates the loan requests table and all indexes required by API constraints.
+ */
 class m260220_000001_create_loan_requests_table extends Migration
 {
+    /**
+     * {@inheritdoc}
+     */
     public function safeUp()
     {
         $this->createTable('{{%loan_requests}}', [
@@ -26,6 +32,9 @@ class m260220_000001_create_loan_requests_table extends Migration
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function safeDown()
     {
         $this->execute('DROP INDEX IF EXISTS idx_loan_requests_user_id_approved_unique');

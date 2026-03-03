@@ -41,26 +41,17 @@ class RequestsController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        if (stripos((string) Yii::$app->request->headers->get('Content-Type', ''), 'application/json') !== 0) {
-            Yii::$app->response->statusCode = 400;
-            return ['result' => false];
-        }
-
-        $data = Yii::$app->request->getBodyParams();
-        if (!is_array($data)) {
-            Yii::$app->response->statusCode = 400;
-            return ['result' => false];
-        }
-
         $service = new LoanRequestService();
-        $result = $service->create($data);
-
-        if (($result['result'] ?? false) !== true) {
+        $requestId = $service->createFromRequest(Yii::$app->request);
+        if ($requestId === null) {
             Yii::$app->response->statusCode = 400;
             return ['result' => false];
         }
 
         Yii::$app->response->statusCode = 201;
-        return $result;
+        return [
+            'result' => true,
+            'id' => $requestId,
+        ];
     }
 }

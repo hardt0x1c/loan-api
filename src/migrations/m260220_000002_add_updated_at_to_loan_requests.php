@@ -2,8 +2,14 @@
 
 use yii\db\Migration;
 
+/**
+ * Adds updated_at support for stale "processing" request recovery.
+ */
 class m260220_000002_add_updated_at_to_loan_requests extends Migration
 {
+    /**
+     * {@inheritdoc}
+     */
     public function safeUp()
     {
         $this->addColumn('{{%loan_requests}}', 'updated_at', $this->timestamp()->notNull()->defaultExpression('NOW()'));
@@ -25,6 +31,9 @@ class m260220_000002_add_updated_at_to_loan_requests extends Migration
         ');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function safeDown()
     {
         $this->execute('DROP TRIGGER IF EXISTS update_loan_requests_updated_at ON {{%loan_requests}}');

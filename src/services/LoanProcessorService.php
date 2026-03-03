@@ -9,6 +9,9 @@ use yii\db\Expression;
 use yii\db\IntegrityException;
 use yii\db\StaleObjectException;
 
+/**
+ * Coordinates concurrent-safe processing of pending loan requests.
+ */
 class LoanProcessorService
 {
     /**
@@ -143,6 +146,12 @@ class LoanProcessorService
         }
     }
 
+    /**
+     * Approves request if possible, otherwise declines on unique constraint conflict.
+     *
+     * @param LoanRequest $loanRequest
+     * @return void
+     */
     private function tryApproveOrDecline(LoanRequest $loanRequest): void
     {
         try {
